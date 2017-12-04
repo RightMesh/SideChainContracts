@@ -93,6 +93,7 @@ buyer = ["address of private buyer"]
 new xor = ["0x0000000000000000000000000000000000000002"]
 ```
 , respectively.
+
 14. From private seller's account call function ```Finish Data Trading From SP``` with the following arguments:
 ```
 Sellers = ["address of private seller"]
@@ -105,7 +106,9 @@ data amts in kb = [1000,1000]
 After mining, we should observe the balance of seller in private chain has been further increased with (1000+1000)x20=20.000 RightMeshToken. 
 Moreover, let forwarders watch the deployed RightMeshTokenPrivate token in private chain. We should observe the rewards for forwarders have been given to those forwarders. In particular, the first forwarder who reported XOR code ```0x0000000000000000000000000000000000000001``` should received 44.000 RightMeshToken. The second forwarder who reported XOR code ```0x0000000000000000000000000000000000000002``` should receive 24.000 RightMeshToken. It makes sence because their received rewards are proportional to the data amounts they forwarded.   
 Last but not least, since the buyer just used 17000 KB data, we should observe the rest 3000 KB data is given back to the seller's data pool and the extra RightMeshToken (i.e., 3000x20x1.25=75.000) held by DataStore should have been reimbursed to the buyer account in private chain. Since 17000 KB has been used by the buyer, we can see from seller's private account that he has earned 17000KB x 0.020RightMeshToken/KB=340.000 RightMeshTokens.
+
 15. The data trading between the buyer and seller has been done, the forwarder and seller can now deposit their RightMeshTokens in private chain to their accounts in public chain. It is because they can only get back real Ethers in public chain. For example, assume seller wants to save its earned RightMeshToken to the public chain. From the seller's private account in private chain, call function ```Deposit First Stage``` and specify the amount of RightMeshToken want to deposit. We can deposit all of the 340.000 RightMeshTokens. However, if you enter an amount more than 340000 in the blank, the block chain will not allow you to execute that. Assume we have enterred 340000, after mining we can observe the balance of sell's private account has been updated to 0.000. 
+
 16. It is our responsibility to keep user's accounts in both public and private chains even. There would be routine running on Amazon Server to handle it. For now, we need to do that manually. The only difference between widthdraw and deposit operations is that we need to pay for the gas when we reimburse RightMeshTokens into the public main chain. A simple solution to let the user pay for the reimbursement is that we charge the gas in terms of RightMeshTokens according to the current exchange rate with real Ether. For example, if exchange rate from Ether to RightMeshToken is 1,000.000 RightMeshToken/Ether and the reimbursement transaction consumes 0.001 Ether, we reimburse 339.000 RightMeshTokens to the seller's public account. The 1.000 RightMeshToken is returned to us. Now, call from the public smart contract deployer's account in public chain can call funciton ```Deposit Second Stage``` with the following arguments:
 ```
 User account = address of seller's public account
@@ -113,7 +116,9 @@ Deposit amount = 339000
 Deducted amount = 1000
 ```
 Mining the transaction in public chain should reimburse 399.000 RightMeshTokens to the seller's public account. Seller now can change it back to real Ether and get out money (e.g., USD) by selling it. 
+
 17. Desides the basic operations with demos given above, please feel free to call function ```Buy More Data``` before the function ```Finish Data Trading``` is called. ```Buy More Data``` is used by data buyers periodically to buy more data from their current sellers.
+
 18. Note that multiple three-tuples can be used to invoke function ```Report New Xor``` when a forwarder wants to log more than one (seller, buyer, xor) tuple into blockchain. For example, consider a forwarder is a crossing node between two routes connecting (Seller-1, Buyer-1) and (Seller-2, Buyer-2), also assume its XOR codes on these routes are Xor-1 and Xor-2, respectively. Then, when the forwarder reports its contribution to the block chain, it can use the following arguments for function ```Report New Xor```:
 ```
 seller = ["address of Seller-1","address of Seller-2"]
