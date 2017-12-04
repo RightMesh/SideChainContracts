@@ -3,7 +3,7 @@
 Use case in data tradings
 
 ## Getting Started
-Download [genesis.json](https://code.leftofthedot.com/Left/SmartContracts/blob/master/genesis.json) and [genesisprivate.json](https://code.leftofthedot.com/Left/SmartContracts/blob/master/genesisprivate.json) and save them in ```$HOME/etherum```.
+Download [genesis.json](https://github.com/RightMesh/SmartContracts/blob/master/genesis.json) and [genesisprivate.json](https://github.com/RightMesh/SmartContracts/blob/master/genesisprivate.json) and save them in ```$HOME/etherum```.
 Use the following commands to create 3 peers in public chain and 5 peers in private chain:
 ```
 geth --datadir "$HOME/ethereum/publicchaindeployer" init $HOME/ethereum/genesis.json
@@ -15,13 +15,12 @@ geth --datadir "$HOME/ethereum/privatechainseller" init $HOME/ethereum/genesispr
 geth --datadir "$HOME/ethereum/privatechainfwder1" init $HOME/ethereum/genesisprivate.json
 geth --datadir "$HOME/ethereum/privatechainfwder2" init $HOME/ethereum/genesisprivate.json
 ``` 
-The deployerpeers in both private and public chains would be the peers owned by us. Via deployer peers, we can deploy smart contracts in block chains.
+The deployer peers in both private and public chains would be the peers owned by us. Via deployer peers, we can deploy smart contracts in block chains.
 ### Prerequisites
 * Run these peers, and make sure peers in each chain can see each other in the same chain.
 * Create an account for each of the following peers: public smart contract deployer, public buyer, public seller, private smart contract deployer, private fwder1, and privte fwder2. 
-* Copy the account key files of public buyer and seller to private buyer's and seller's key stores, respectively.
+* Copy the wallet files of public buyer and seller to private buyer's and seller's key stores, respectively.
 * Start the miner for each account and make sure each account has enought Ethers.
-* Download browser-solidity and Mist-0.8.10 and walk through our tutorials for smart contract deployment.
 * Please first load all the smart contracts in browser-solidity. We have used ```import``` key words to include the external files that we need in each smart contract. 
 
 NOTE: When deploy a smart contract in Mist wallet, please first manually assemble all external files into one smart contract file. Then, copy and paste the assembled file into the smart contract editor in Mist.
@@ -79,7 +78,7 @@ price per kb = 20
 seller = address of private seller's account
 amount kb = 20000
 ```
-13. After mining, observe buyer's private balance has been deducted to 19,500.000. This is because the price set by the seller is 20, i.e., 0.02 RightMeshToken/KB. The charge to reward forwarders is 20% and we hold 5% charge for the usage of RightMesh Library. So, 20,000.000-0.02*20000*(1+20%+5%)=19,500.000. 
+13. After mining, observe buyer's private balance has been deducted to 19,500.000. This is because the price set by the seller is 20, i.e., 0.02 RightMeshToken/KB. The charge to reward forwarders is 20% and we hold 5% charge for the usage of RightMesh Library. So, 20,000.000-0.02x20000x(1+20%+5%)=19,500.000. 
 Moreover, from the deployed DataStore, copy both accounts of private seller and buyer and paste them into ```Ongoing data tradings```, we can observe the ```Total reserved data amt in kb```, ```Total reserved token amt```, ```Price per kb```, ```Data consumed in kb```, and ```Is entity``` have been saved in the log. Meanwhile, from the deployed DataPool instance, pasting the address of the private seller's account in the hash map ```Pool``` will show us that 20000 KB has been used/allocated from seller's sharing pool.
 * Now, the Internet data packets sent from/to the buyer can be handled by the seller. When a forwarder notice a new XOR code between the a seller-buyer pair, the forwarder needs to send a report to the blockchain to log its forwarding contributions. From each of the forwarder peers in private chain, let them watch the deployed DataStore and call the function ```Report New Xors``` with the following sets of arguments:
 ```
@@ -94,51 +93,31 @@ buyer = ["address of private buyer"]
 new xor = ["0x0000000000000000000000000000000000000002"]
 ```
 , respectively.
-14. From private buyer's account call function ```Periodical Confirmation From Buyer``` with the following arguments:
+14. From private seller's account call function ```Finish Data Trading From SP``` with the following arguments:
 ```
-seller = address of private seller
-fwder xor results = ["0x0000000000000000000000000000000000000001","0x0000000000000000000000000000000000000002"]
-data amts in kb = [6000,3000] 
-```
-After mining, we should observe the balance of seller in private chain has been increased with (6000+3000)*20=180.000 RightMeshToken.
-15. Furthermore, from private seller's account call function ```Periodical Confirmation From Seller``` with the following arguments:
-```
-buyer array = ["address of our private buyer"]
-counter array = [2]
-fwder xor results = ["0x0000000000000000000000000000000000000002","0x0000000000000000000000000000000000000001"]
-data amts in kb = [2000,4000] 
-```
-After mining, we should observe the balance of seller in private chain has been further increased with (4000+2000)*20=120.000 RightMeshToken.
-16. Evenually, from private seller's account call function ```Finish Data Trading``` with the following arguments:
-```
-buyer = address of our private buyer
-fwder xor results = ["0x0000000000000000000000000000000000000001","0x0000000000000000000000000000000000000002"]
+Sellers = ["address of private seller"]
+Group buyer counter for seller = [1]
+Buyers = ["address of private buyer"]
+Group xor counter for buyer = [2]
+Fwder xor results = ["0x0000000000000000000000000000000000000001","0x0000000000000000000000000000000000000002"]
 data amts in kb = [1000,1000] 
 ```
-After mining, we should observe the balance of seller in private chain has been further increased with (1000+1000)*20=20.000 RightMeshToken. 
+After mining, we should observe the balance of seller in private chain has been further increased with (1000+1000)x20=20.000 RightMeshToken. 
 Moreover, let forwarders watch the deployed RightMeshTokenPrivate token in private chain. We should observe the rewards for forwarders have been given to those forwarders. In particular, the first forwarder who reported XOR code ```0x0000000000000000000000000000000000000001``` should received 44.000 RightMeshToken. The second forwarder who reported XOR code ```0x0000000000000000000000000000000000000002``` should receive 24.000 RightMeshToken. It makes sence because their received rewards are proportional to the data amounts they forwarded.   
-Last but not least, since the buyer just used 17000 KB data, we should observe the rest 3000 KB data is given back to the seller's data pool and the extra RightMeshToken (i.e., 3000*20*1.25=75.000) held by DataStore should have been reimbursed to the buyer account in private chain. Since 17000 KB has been used by the buyer, we can see from seller's private account that he has earned 17000 KB * 0.020 RightMeshToken/KB=340.000 RightMeshTokens.
-17. The data trading between the buyer and seller has been done, the forwarder and seller can now deposit their RightMeshTokens in private chain to their accounts in public chain. It is because they can only get back real Ethers in public chain. For example, assume seller wants to save its earned RightMeshToken to the public chain. From the seller's private account in private chain, call function ```Deposit First Stage``` and specify the amount of RightMeshToken want to deposit. We can deposit all of the 340.000 RightMeshTokens. However, if you enter an amount more than 340000 in the blank, the block chain will not allow you to execute that. Assume we have enterred 340000, after mining we can observe the balance of sell's private account has been updated to 0.000. 
-18. It is our responsibility to keep user's accounts in both public and private chains even. There would be routine running on Amazon Server to handle it. For now, we need to do that manually. The only difference between widthdraw and deposit operations is that we need to pay for the gas when we reimburse RightMeshTokens into the public main chain. A simple solution to let the user pay for the reimbursement is that we charge the gas in terms of RightMeshTokens according to the current exchange rate with real Ether. For example, if exchange rate from Ether to RightMeshToken is 1,000.000 RightMeshToken/Ether and the reimbursement transaction consumes 0.001 Ether, we reimburse 339.000 RightMeshTokens to the seller's public account.  Now, call from the public smart contract deployer's account in public chain can call funciton ```Deposit Second Stage``` with the following arguments:
+Last but not least, since the buyer just used 17000 KB data, we should observe the rest 3000 KB data is given back to the seller's data pool and the extra RightMeshToken (i.e., 3000x20x1.25=75.000) held by DataStore should have been reimbursed to the buyer account in private chain. Since 17000 KB has been used by the buyer, we can see from seller's private account that he has earned 17000KB x 0.020RightMeshToken/KB=340.000 RightMeshTokens.
+15. The data trading between the buyer and seller has been done, the forwarder and seller can now deposit their RightMeshTokens in private chain to their accounts in public chain. It is because they can only get back real Ethers in public chain. For example, assume seller wants to save its earned RightMeshToken to the public chain. From the seller's private account in private chain, call function ```Deposit First Stage``` and specify the amount of RightMeshToken want to deposit. We can deposit all of the 340.000 RightMeshTokens. However, if you enter an amount more than 340000 in the blank, the block chain will not allow you to execute that. Assume we have enterred 340000, after mining we can observe the balance of sell's private account has been updated to 0.000. 
+16. It is our responsibility to keep user's accounts in both public and private chains even. There would be routine running on Amazon Server to handle it. For now, we need to do that manually. The only difference between widthdraw and deposit operations is that we need to pay for the gas when we reimburse RightMeshTokens into the public main chain. A simple solution to let the user pay for the reimbursement is that we charge the gas in terms of RightMeshTokens according to the current exchange rate with real Ether. For example, if exchange rate from Ether to RightMeshToken is 1,000.000 RightMeshToken/Ether and the reimbursement transaction consumes 0.001 Ether, we reimburse 339.000 RightMeshTokens to the seller's public account. The 1.000 RightMeshToken is returned to us. Now, call from the public smart contract deployer's account in public chain can call funciton ```Deposit Second Stage``` with the following arguments:
 ```
 User account = address of seller's public account
 Deposit amount = 339000
+Deducted amount = 1000
 ```
 Mining the transaction in public chain should reimburse 399.000 RightMeshTokens to the seller's public account. Seller now can change it back to real Ether and get out money (e.g., USD) by selling it. 
-19. Desides the basic operations with demos given above, please feel free to call function ```Buy More Data``` before the function ```Finish Data Trading``` is called. ```Buy More Data``` is used by data buyers periodically to buy more data from their current sellers.
-20. Note that multiple three-tuples can be used to invoke function ```Report New Xor``` when a forwarder wants to log more than one (seller, buyer, xor) tuple into blockchain. For example, consider a forwarder is a crossing node between two routes connecting (Seller-1, Buyer-1) and (Seller-2, Buyer-2), also assume its XOR codes on these routes are Xor-1 and Xor-2, respectively. Then, when the forwarder reports its contribution to the block chain, it can use the following arguments for function ```Report New Xor```:
+17. Desides the basic operations with demos given above, please feel free to call function ```Buy More Data``` before the function ```Finish Data Trading``` is called. ```Buy More Data``` is used by data buyers periodically to buy more data from their current sellers.
+18. Note that multiple three-tuples can be used to invoke function ```Report New Xor``` when a forwarder wants to log more than one (seller, buyer, xor) tuple into blockchain. For example, consider a forwarder is a crossing node between two routes connecting (Seller-1, Buyer-1) and (Seller-2, Buyer-2), also assume its XOR codes on these routes are Xor-1 and Xor-2, respectively. Then, when the forwarder reports its contribution to the block chain, it can use the following arguments for function ```Report New Xor```:
 ```
 seller = ["address of Seller-1","address of Seller-2"]
 buyer = ["address of Buyer-1","address of Buyer-2"]
 new xor = ["Xor-1","Xor-2"]
 ```
-21. Also, multiple buyers can be put in function ```Periodical Confirmation From Seller```. For example, if the seller is serving two buyers, say Buyer-1 and Buyer-2, and has received two XOR codes for the routes comming from Buyer-1, say ```0x0000000000000000000000000000000000000011``` and ```0x0000000000000000000000000000000000000012``` with 6000 KB and 2000 KB, respectively, and meanwhile, three XOR codes ```0x0000000000000000000000000000000000000021```, ```0x0000000000000000000000000000000000000022```, and  ```0x0000000000000000000000000000000000000023``` have also been received for the routes comming from Buyer-2 with 4000 KB, 3000 KB, and 1000 KB, respectively. Then, we can use the following argument to call this function:
-```
-buyer array = ["address of Buyer-1","address of Buyer-2"]
-counter array = [2,3]
-fwder xor results = ["0x0000000000000000000000000000000000000011","0x0000000000000000000000000000000000000012","0x0000000000000000000000000000000000000021","0x0000000000000000000000000000000000000022","0x0000000000000000000000000000000000000023"]
-data amts in kb = [6000,2000,4000,3000,1000] 
-```
-22. It is worth mentioning that functions ```Report New Xor```, ```Periodical Confirmation From Buyer```, and ```Periodical Confirmation From Seller``` can be called in an arbitrary order which gives exactly the same final result. This is because they are supposed to get called by different peers without any synchronization. However, all these function callings should be after ```Buy Data``` run by the buyer and before ```Finish Data Trading``` run by the seller. 
-23. To enable RightMesh Library to handle above use cases, please refer to the [Techenical Requirements](https://docs.google.com/document/d/1W9cPn85Rwswy8ajwrDNfJsls4nrAEJeSK3K0JCiYz_Y/edit?usp=sharing) document.
-24. Details about pay channel protocols can be found in [Pay Channel Specifications](https://docs.google.com/document/d/14GcPV5ioEnTmIxEgCdvjvp78j_0E2rBeqhIyEy4zxFA/edit?usp=sharing) document.
+
