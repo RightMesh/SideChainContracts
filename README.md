@@ -1,4 +1,5 @@
-# Project Title
+# Deprecated
+Note: these contracts aren't being used in RM - they are here for historical record, from when we were pursing a sidechain solution which has since been abandoned.
 
 Use case in data tradings
 
